@@ -55,13 +55,13 @@ for (i in seq_along(plant_spp$name2)) {
 # Max value per SPAM crop ####
 # get the max value in each cell combining ecocrop plant species
 # into a single SPAM crop 
-spam = unique(plant_spp$SPAM_Name)
+spam = unique(plant_spp$SPAM_Code)
 
 ssp = c("current", paste0("SSP-", gcm))
 
 for (i in seq_along(spam)) {
   
-  index = plant_spp[plant_spp$SPAM_Name == spam[i], "name2"]
+  index = plant_spp[plant_spp$SPAM_Code == spam[i], "name2"]
   
   index1 = paste(index, collapse = "|")
   
@@ -85,13 +85,15 @@ for (i in seq_along(spam)) {
   }
 }
 
+list.files(output)
 
 
 
+files = list.files(output, pattern = "maize", full.names = T)
 
+r = rast(files)
 
-
-
+plot(r)
 
 
 
