@@ -10,7 +10,7 @@ ssps = c("126", "245", "370", "585")
 
 times = c("2041-2060", "2061-2080")
 
-vars = c("tmin", "tmax", "prec")
+vars = "bio" #c("tmin", "tmax", "prec")
 
 res = 5
 
@@ -35,6 +35,7 @@ for (i in seq_along(vars)) {
 
 # now run over climate scenarios 
 for (i in seq_len(nrow(model_runs))) {
+  print(paste0(i, " in ", nrow(model_runs)))
   cmip6_world(model = model_runs[i, 1],
               ssp = model_runs[i, 2],
               time = model_runs[i, 3],
@@ -42,5 +43,6 @@ for (i in seq_len(nrow(model_runs))) {
               res = res, 
               path = wcpath)
 }
+
 
 
