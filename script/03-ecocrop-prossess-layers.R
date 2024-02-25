@@ -20,18 +20,10 @@ keep = !duplicated(paste0(model_runs$V2, model_runs$V3))
 
 model_runs = model_runs[keep, c("V2", "V3")]
 
-# mask = worldclim_global("prec", res = 5, path = "data/wc2.1-global")
-# mask = mask[[1]]
-# mask[mask > -1] = -1
-# 
-# plot(mask)
-
 # # ........................................
 # # ........................................
 # # Average rasters by SSPs #####
 # # this will run over GCMs to get the average and over crops 
-# crop_spp = unique(plant_spp$crop)
-# 
 
 spam = unique(plant_spp$SPAM_Code)
 
@@ -55,7 +47,7 @@ for (i in seq_along(spam)) {
 
     r = max(r)
     
-    if (isFALSE(spam[i] %in% c("chic", "cowp", "pige"))) {
+    if (isFALSE(spam[i] %in% c("chic", "cowp", "pige", "bean"))) {
       r[r < 0.07] = 0 
     }
     writeRaster(r, filename = paste0(output,"/", index, "-SSP-", gcm[j], ".tif"),
@@ -64,65 +56,4 @@ for (i in seq_along(spam)) {
   }
 
 }
-
-
-
-
-# # move layers 
-# files = list.files(here, pattern = "current", full.names = TRUE)
-# 
-# file.copy(files, output)
-
-# # ........................................
-# # ........................................
-# # Max value per SPAM crop ####
-# # get the max value in each cell combining ecocrop plant species
-# # into a single SPAM crop 
-# spam = unique(plant_spp$SPAM_Code)
-# 
-# ssp = c("current", paste0("SSP-", gcm))
-# 
-# for (i in seq_along(spam)) {
-#   
-#   index = plant_spp[plant_spp$SPAM_Code == spam[i], "name2"]
-#   
-#   index1 = paste(index, collapse = "|")
-#   
-#   files = list.files(here, pattern = index1, full.names = TRUE)
-#   
-#   for (j in seq_along(ssp)) {
-#     
-#     print(paste(spam[i], ssp[j]))
-#     
-#     f = grep(ssp[j], files)
-#     
-#     f = files[f]
-#     
-#     r = rast(f)
-#     
-#     r = max(r)
-#     
-#     names(r) = gsub(" |-", "", paste(spam[i], ssp[j]))
-#     
-#     writeRaster(r, filename = paste0(output, spam[i], "-", ssp[j], ".tif"), overwrite = TRUE)
-#   }
-# }
-
-# list.files(output)
-# 
-# files = list.files(output, pattern = "rice", full.names = T)
-# 
-# files
-#  
-# r = rast(files)
-#  
-# plot(r)
-#  
-
-
-
-
-
-
-
 

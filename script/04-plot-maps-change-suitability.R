@@ -58,10 +58,14 @@ for (i in seq_along(spam_code)) {
     #  1 = always suitable
     #  0 = never suitable
     # -1 = no longer suitable
-    #  2 = new habitat
+    #  2 = novel areas
     overlay = function(x, y) {(x - y)}
     change_suit = do.call(overlay, list(x = future, y = current))
     change_suit = crop(change_suit, ext(w))
+    
+    writeRaster(change_suit, 
+                filename = paste0(output,spam_code[i], "-SSP-", gcm[j], ".tif"),
+                overwrite = TRUE)
     
     r <- as.data.frame(change_suit, xy = TRUE)
     r <- r[!is.na(r[, 3]), ]
