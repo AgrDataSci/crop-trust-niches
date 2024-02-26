@@ -110,7 +110,7 @@ for(i in seq_along(spam)) {
     
     s_sample = s_sample[s_sample$suitability != -1, ]
     
-    s_sample$spp = ssp[j]
+    s_sample$ssp = ssp[j]
     
     dat = rbind(dat, s_sample)
   
