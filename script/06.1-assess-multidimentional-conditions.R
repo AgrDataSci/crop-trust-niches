@@ -7,6 +7,7 @@ wcpath = "data/wc2.1-global"
 
 bio = worldclim_global("bio", res = 5, wcpath)
 names(bio) = gsub("wc2.1_5m_", "", names(bio))
+names(bio) = gsub("_", "", names(bio))
 bio
 
 spam_points = read.csv("output/sampled-points-spam-ecocrop/sampled-points-spam-ecocrop.csv")
@@ -31,9 +32,11 @@ keep = !duplicated(paste0(model_runs$V2, model_runs$V3))
 ssp = model_runs[keep, c("V2", "V3")]
 
 # extract bioclim current 
-bio_e = extract(bio, spam_points[,c("x", "y")])
+dat2 = spam_points[spam_points$suitability == 1 & spam_points$ssp == "126-2041-2060", ]
 
-dat2 = cbind(spam_points, bio_e)
+bio_e = extract(bio, dat2[,c("x", "y")])
+
+dat2 = cbind(dat2, bio_e)
 
 dat2 = dat2[,!grepl("ID", names(dat2))]
 
@@ -65,7 +68,7 @@ for(i in seq_along(ssp$V2)) {
                     res = 5, 
                     path = wcpath)
     
-    names(b) = paste0("bio_", 1:19)
+    names(b) = paste0("bio", 1:19)
     
     b = extract(b, dat[[i]][, c("x", "y")])
     
@@ -77,7 +80,7 @@ for(i in seq_along(ssp$V2)) {
   
   for(k in seq_along(1:19)) {
     v = lapply(bio_future, function(x){
-      x[,paste0("bio_", k)]
+      x[,paste0("bio", k)]
     })
     v = as.data.frame(do.call(cbind, v))
     v = rowMeans(v)
@@ -86,7 +89,7 @@ for(i in seq_along(ssp$V2)) {
   
   mean_b = as.data.frame(mean_b)
   
-  names(mean_b) = paste0("bio_", 1:19)
+  names(mean_b) = paste0("bio", 1:19)
   
   dat[[i]] = cbind(dat[[i]], mean_b)
   

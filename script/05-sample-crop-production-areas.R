@@ -27,9 +27,6 @@ myext = ext(rast(paste0(suitability_path, tolower(spam[1]), "-SSP-", ssp[1], ".t
 
 dat = data.frame()
 
-i=6
-j=1
-
 set.seed(2148)
 seeds = floor(runif(length(spam), 0, 10000))
 
@@ -71,7 +68,7 @@ for(i in seq_along(spam)) {
     # get sample using harvest area as weight
     set.seed(seeds[i])
     s_sample = spatSample(s_harv, 
-                          size = 3000, 
+                          size = 1000, 
                           method = "weights", 
                           xy = TRUE,
                           na.rm = TRUE)
@@ -93,7 +90,7 @@ for(i in seq_along(spam)) {
     
     set.seed(seeds[i])
     novel = spatSample(novel, 
-                       size = 2000, 
+                       size = 1000, 
                        method = "weights", 
                        xy = TRUE,
                        na.rm = TRUE)
