@@ -33,7 +33,7 @@ for(i in seq_along(ssp)) {
   
   d_i = na.omit(d_i)
   
-  bio_i = d_i[,paste0("bio", c(1, 2, 4, 5, 6, 7, 12, 16, 17, 18))]
+  bio_i = d_i[,paste0("bio", c(1, 2, 4, 5, 6, 7, 12, 16, 17, 18, 19))]
   
   pca = scale(bio_i)
   
@@ -63,6 +63,8 @@ p =
   plots[[7]] + plots[[8]] + plots[[9]] +
   plot_layout(ncol = 3)
 p
+
+
 ggsave("output/climate-envelope-ecocrop.pdf",
        plot = p,
        width = 35,

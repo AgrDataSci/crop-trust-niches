@@ -137,7 +137,7 @@ bio_f = list()
 
 for(i in seq_along(ssp$V2)) {
   
-  print(check_point[i])
+  print(ssp[i, ])
   
   bio_future = list()
   
@@ -151,19 +151,19 @@ for(i in seq_along(ssp$V2)) {
                     res = 5, 
                     path = wcpath)
     
-    names(b) = paste0("bio_", 1:19)
+    names(b) = paste0("bio", 1:19)
     
-    b = extract(b, dat[[i]][, c("x", "y")])
+    b = extract(b, dat[, c("x", "y")])
     
     bio_future[[j]] = b
   }
   
   # get the mean of gcm
-  mean_b = matrix(NA, nrow = nrow(dat[[i]]), ncol = 19)
+  mean_b = matrix(NA, nrow = nrow(dat), ncol = 19)
   
   for(k in seq_along(1:19)) {
     v = lapply(bio_future, function(x){
-      x[,paste0("bio_", k)]
+      x[,paste0("bio", k)]
     })
     v = as.data.frame(do.call(cbind, v))
     v = rowMeans(v)
@@ -172,18 +172,28 @@ for(i in seq_along(ssp$V2)) {
   
   mean_b = as.data.frame(mean_b)
   
-  names(mean_b) = paste0("bio_", 1:19)
+  names(mean_b) = paste0("bio", 1:19)
   
-  dat[[i]] = cbind(dat[[i]], mean_b)
+  mean_b$ssp = paste0(ssp[i, ], collapse = "-")
+  
+  bio_f[[i]] = cbind(dat, mean_b)
   
 }
 
-dat = do.call(rbind, dat)
+bio_f = do.call("rbind", bio_f)
 
-dat = rbind(dat2, dat)
+names(bio_f) = gsub("bio_", "bio", names(bio_f))
 
+names(dat2) = gsub("bio_", "bio", names(dat2))
 
+names(bio_f)
 
+names(dat2)
+
+dat = rbind(dat2, bio_f)
+
+write.csv(dat, "output/sampled-points-spam-ecocrop/landrace-and-cwr-bioclim-extracted.csv", 
+          row.names = FALSE)
 
 
 
