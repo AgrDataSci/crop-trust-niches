@@ -4,11 +4,23 @@
 # Cluster accessions within species and group (landrace group or CWR genepool) 
 # using current climate data. Consider pooling CWR together. Climate groups 
 # not to be used in case landrace groups are climate-based.
+#
+# This analysis was performed with a range of k (number of groups) to assess
+# variability at different levels of aggregation (or resolutions of the analysis).
+# Since our objective is to understand the range and diversity of climate 
+# characteristics mainly under historical climates (i.e., climates likely to 
+# represent the range of climate adaptations of the accessions), we only performed
+# this analysis using historical climate data. We calculated central tendency, 
+# variability, and probability distributions for the various groups identified,
+# focusing on those climate variables that most explain overall variation. 
+# To facilitate interpretation, we produced summary tables, biplots, cumulative
+# probability distribution plots, and force-directed graphs.
+
 library("terra")
 library("geodata")
 library("tidyverse")
 library("magrittr")
-
+library("factoextra")
 # ....................................
 # ....................................
 # Input data #####
@@ -104,11 +116,14 @@ landrace$taxon = landrace$crop
 dat = rbind(cwr[,c("GR", "NAME", "SPAM_Name", "SPAM_Code", "taxon", "x","y")],
             landrace[,c("GR", "NAME", "SPAM_Name", "SPAM_Code", "taxon", "x","y")])
 
+
+rm(landrace, cwr)
+
 head(dat)
 
 
-ggplot(dat, aes(x = x, y = y, color = GR)) +
-  geom_point()
+# ggplot(dat, aes(x = x, y = y, color = GR)) +
+#   geom_point()
 
 # remove duplicates 
 dat %<>% 
@@ -133,6 +148,8 @@ bio = worldclim_global("bio", res = 5, wcpath)
 bionames = paste0("bio", 1:19)
 names(bio) = bionames
 
+plot(bio[[1]])
+
 # model_runs = read.csv("data/worldclim-cmip6-model-runs.csv")
 # 
 # keep = !duplicated(paste0(model_runs$V1, model_runs$V2, model_runs$V3))
@@ -150,7 +167,7 @@ names(bio) = bionames
 # Extract climate data #####
 # read with file with models to run 
 # extract bioclim current 
-bio_e = extract(bio, dat[,c("x", "y")])
+bio_e = terra::extract(bio, dat[, c("x", "y")])
 
 bio_e = bio_e[, -grep("ID", names(bio_e))]
 
@@ -164,7 +181,9 @@ table(dat2$group)
 
 groups = unique(dat2$group)
 
-i = 1
+i = 3
+
+groups[i]
 
 keep = dat2$group == groups[i]
 
@@ -174,15 +193,28 @@ d = scale(d)
 
 d = dist(d)
 
-clust = hclust(d, method = "complete")
+clust = hclust(d, method = "ward.D2")
+
+plot(clust, cex = 0.5, hang = -1)
+
+clust_sqt = sqrt(clust$height)
+
+plot(clust_sqt)
 
 k = cutree(clust, 20)
 
-longlat = dat[keep, c("x", "y")]
+table(k)
 
+longlat = dat[keep, c("x", "y")]
 
 longlat$clust = as.factor(k)
 
 ggplot(longlat, aes(x = x, y = y, color = clust)) +
   geom_point()
+
+m = as.matrix(d)
+
+z = fviz_nbclust(m, kmeans, "gap_stat")
+
+
 
