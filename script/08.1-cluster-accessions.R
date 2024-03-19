@@ -6,6 +6,8 @@
 # not to be used in case landrace groups are climate-based.
 library("terra")
 library("geodata")
+library("tidyverse")
+library("magrittr")
 
 # ....................................
 # ....................................
@@ -54,7 +56,6 @@ cwr = merge(cwr,
 cwr$GR = "CWR"
 
 cwr$taxon = cwr$taxon_final
-
 
 table(cwr$SPAM_Name)
 table(cwr$NAME)
@@ -105,25 +106,44 @@ dat = rbind(cwr[,c("GR", "NAME", "SPAM_Name", "SPAM_Code", "taxon", "x","y")],
 
 head(dat)
 
+
+ggplot(dat, aes(x = x, y = y, color = GR)) +
+  geom_point()
+
+# remove duplicates 
+dat %<>% 
+  group_by(GR, NAME, taxon, SPAM_Code) %>% 
+  mutate(lonlat = paste0(x, y)) %>% 
+  filter(!duplicated(lonlat)) %>% 
+  ungroup() 
+
+dat %>% 
+  group_by(GR, NAME, taxon, SPAM_Code) %>% 
+  summarise(n = length(x))
+
+# ggplot(dat, aes(x = x, y = y, color = GR)) +
+#   geom_point()
+
 # ....................................
 # ....................................
 # Climate variables and SSP #####
 wcpath = "data/wc2.1-global"
 
 bio = worldclim_global("bio", res = 5, wcpath)
-names(bio) = gsub("wc2.1_5m_", "", names(bio))
+bionames = paste0("bio", 1:19)
+names(bio) = bionames
 
-model_runs = read.csv("data/worldclim-cmip6-model-runs.csv")
-
-keep = !duplicated(paste0(model_runs$V1, model_runs$V2, model_runs$V3))
-
-gcm = model_runs[keep, ]
-
-gcm = unique(gcm$V1)
-
-keep = !duplicated(paste0(model_runs$V2, model_runs$V3))
-
-ssp = model_runs[keep, c("V2", "V3")]
+# model_runs = read.csv("data/worldclim-cmip6-model-runs.csv")
+# 
+# keep = !duplicated(paste0(model_runs$V1, model_runs$V2, model_runs$V3))
+# 
+# gcm = model_runs[keep, ]
+# 
+# gcm = unique(gcm$V1)
+# 
+# keep = !duplicated(paste0(model_runs$V2, model_runs$V3))
+# 
+# ssp = model_runs[keep, c("V2", "V3")]
 
 # ....................................
 # ....................................
@@ -138,71 +158,31 @@ dat2 = cbind(dat, bio_e)
 
 head(dat2)
 
-dat2$ssp = "current"
+dat2$group = paste(dat$GR, dat$SPAM_Code, sep = " - ")
 
-bio_f = list()
+table(dat2$group)
 
-for(i in seq_along(ssp$V2)) {
-  
-  print(ssp[i, ])
-  
-  bio_future = list()
-  
-  # run over gcm layers and extract values
-  for (j in seq_along(gcm)) {
-    
-    b = cmip6_world(model = gcm[j],
-                    ssp = ssp[i, 1],
-                    time = ssp[i, 2],
-                    var = "bio",
-                    res = 5, 
-                    path = wcpath)
-    
-    names(b) = paste0("bio", 1:19)
-    
-    b = extract(b, dat[, c("x", "y")])
-    
-    bio_future[[j]] = b
-  }
-  
-  # get the mean of gcm
-  mean_b = matrix(NA, nrow = nrow(dat), ncol = 19)
-  
-  for(k in seq_along(1:19)) {
-    v = lapply(bio_future, function(x){
-      x[,paste0("bio", k)]
-    })
-    v = as.data.frame(do.call(cbind, v))
-    v = rowMeans(v)
-    mean_b[, k] = v
-  }
-  
-  mean_b = as.data.frame(mean_b)
-  
-  names(mean_b) = paste0("bio", 1:19)
-  
-  mean_b$ssp = paste0(ssp[i, ], collapse = "-")
-  
-  bio_f[[i]] = cbind(dat, mean_b)
-  
-}
+groups = unique(dat2$group)
 
-bio_f = do.call("rbind", bio_f)
+i = 1
 
-names(bio_f) = gsub("bio_", "bio", names(bio_f))
+keep = dat2$group == groups[i]
 
-names(dat2) = gsub("bio_", "bio", names(dat2))
+d = dat2[keep, bionames]
 
-names(bio_f)
+d = scale(d)
 
-names(dat2)
+d = dist(d)
 
-dat = rbind(dat2, bio_f)
+clust = hclust(d, method = "complete")
 
-write.csv(dat, "output/sampled-points-spam-ecocrop/landrace-and-cwr-bioclim-extracted.csv", 
-          row.names = FALSE)
+k = cutree(clust, 20)
+
+longlat = dat[keep, c("x", "y")]
 
 
+longlat$clust = as.factor(k)
 
-
+ggplot(longlat, aes(x = x, y = y, color = clust)) +
+  geom_point()
 
