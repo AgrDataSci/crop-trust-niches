@@ -1,6 +1,9 @@
-# Per crop and group (landrace group, or CWR genepool) produce a table
-# with the average, sigma, CV, q1, q2, q3, q4, min/max, of the 
-# historical conditions of the accessions.
+# .................................................
+# .................................................
+# Task 2b. 
+# Cluster accessions within species and group (landrace group or CWR genepool) 
+# using current climate data. Consider pooling CWR together. Climate groups 
+# not to be used in case landrace groups are climate-based.
 library("terra")
 library("geodata")
 

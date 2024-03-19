@@ -1,5 +1,8 @@
-# Combine variables using PCA for historical and future climate, and analyze 
-# multi-dimensional shifts in climate conditions.
+# .................................................
+# .................................................
+# Task 1b. 
+# Combine variables using PCA for historical and future climate, 
+# and analyze multi-dimensional shifts in climate conditions.
 library("terra")
 library("geodata")
 
