@@ -20,12 +20,14 @@ library("terra")
 library("geodata")
 library("tidyverse")
 library("magrittr")
-library("factoextra")
+library("car")
 # ....................................
 # ....................................
 # Input data #####
 # read file with crop parameters
 plant_spp = read.csv("data/calib-eco-pars.csv")
+
+biovif = 
 
 sel = list.files("data/cwr-processed", pattern = ".csv")
 sel = gsub(".csv", "", sel)
@@ -148,20 +150,6 @@ bio = worldclim_global("bio", res = 5, wcpath)
 bionames = paste0("bio", 1:19)
 names(bio) = bionames
 
-plot(bio[[1]])
-
-# model_runs = read.csv("data/worldclim-cmip6-model-runs.csv")
-# 
-# keep = !duplicated(paste0(model_runs$V1, model_runs$V2, model_runs$V3))
-# 
-# gcm = model_runs[keep, ]
-# 
-# gcm = unique(gcm$V1)
-# 
-# keep = !duplicated(paste0(model_runs$V2, model_runs$V3))
-# 
-# ssp = model_runs[keep, c("V2", "V3")]
-
 # ....................................
 # ....................................
 # Extract climate data #####
@@ -181,40 +169,41 @@ table(dat2$group)
 
 groups = unique(dat2$group)
 
-i = 3
+i = 5
 
 groups[i]
 
 keep = dat2$group == groups[i]
 
-d = dat2[keep, bionames]
+d1 = dat2[keep, bionames]
 
-d = scale(d)
+d = scale(d1)
 
 d = dist(d)
 
-clust = hclust(d, method = "ward.D2")
+#hc = hclust(d, method = "ward.D2")
+#plot(hc, cex = 0.5, hang = -1)
+#k = cutree(hc, h = 50)
+#table(k)
 
-plot(clust, cex = 0.5, hang = -1)
 
-clust_sqt = sqrt(clust$height)
+set.seed(2035)
+hc = kmeans(d, 7, nstart = 25)
 
-plot(clust_sqt)
+print(hc)
 
-k = cutree(clust, 20)
-
-table(k)
+fviz_cluster(hc, data = d)
 
 longlat = dat[keep, c("x", "y")]
 
-longlat$clust = as.factor(k)
+longlat$clust = as.factor(hc$cluster)
 
 ggplot(longlat, aes(x = x, y = y, color = clust)) +
   geom_point()
 
-m = as.matrix(d)
 
-z = fviz_nbclust(m, kmeans, "gap_stat")
+
+aggregate(dat2[keep, bionames], by=list(cluster = hc$cluster), mean)
 
 
 
