@@ -23,6 +23,7 @@ library("magrittr")
 library("patchwork")
 library("broom")
 library("sf")
+library("RColorBrewer")
 source("script/helper-01-functions.r")
 # ....................................
 # ....................................
@@ -190,6 +191,8 @@ groups = sort(unique(dat2$group))
 
 pca_list = list()
 map_list = list()
+desn_list = list()
+boxp_list = list()
 
 for (i in seq_along(groups)){
   
@@ -212,7 +215,11 @@ for (i in seq_along(groups)){
   
   # select optimal cutoff point using lm
   false = FALSE
-  nk = 8
+  nk = 15
+  
+  mycolors = colorRampPalette(c('#e41a1c','#377eb8','#4daf4a','#984ea3',
+                                '#ff7f00','#ffff33','#a65628','#f781bf'))(nk)
+  
   while(isFALSE(false)) {
     
     k = cutree(hc, k = nk) 
@@ -252,7 +259,8 @@ for (i in seq_along(groups)){
   PCA2 = princomp(pc)
   
   pc_plot = plot_pca(PCA2, labels = di$clust, scale = 10)  +
-    scale_color_brewer(palette = "Set1", direction = -1) +
+    scale_color_manual(values = mycolors) +
+    #scale_color_brewer(palette = "Set1", direction = -1) +
     labs(title = groups[i])
 
   pca_list[[i]] = pc_plot
@@ -270,11 +278,13 @@ for (i in seq_along(groups)){
             fill = "#828282") +
     geom_jitter(data = di, aes(x = x, y = y, color = clust)) +
     theme_void() +
-    scale_color_brewer(palette = "Set1") +
+    scale_color_manual(values = mycolors,
+                       guide = guide_legend(ncol = 2)) +
+    #scale_color_brewer(palette = "Set1") +
     theme(legend.text = element_text(size = 14),
           legend.position = c(0.11, 0.45),
           plot.title = element_text(hjust = 0.5)) +
-    labs(color = groups[i])
+    labs(color = groups[i]) 
   
   map_list[[i]] = map_clust
   
@@ -305,12 +315,15 @@ for (i in seq_along(groups)){
     ggplot(aes(x = bio, y = value, fill = clust)) +
     geom_boxplot() +
     facet_wrap(bio ~ ., scale = "free") +
-    scale_fill_brewer(palette = "Set1") +
+    scale_fill_manual(values = mycolors) +
+    #scale_fill_brewer(palette = "Set1") +
     theme_minimal() +
     theme(legend.position = "bottom") +
     labs(x = "",
          y = "Value",
          fill = groups[i])
+  
+  boxp_list[[i]] = boxp
   
   ggsave(gsub(" ", "", paste0(output, groups[i], "-boxplot-clust.pdf")),
          plot = boxp,
@@ -323,12 +336,15 @@ for (i in seq_along(groups)){
     ggplot(aes(x = value, fill = clust)) +
     geom_density(alpha = 0.2) + 
     facet_wrap(bio ~ ., scale = "free") +
-    scale_fill_brewer(palette = "Set1") +
+    scale_fill_manual(values = mycolors) +
+    #scale_fill_brewer(palette = "Set1") +
     theme_minimal() +
     theme(legend.position = "bottom") +
     labs(x = "",
          y = "Density",
          fill = groups[i])
+  
+  desn_list[[i]] = densp
   
   ggsave(gsub(" ", "", paste0(output, groups[i], "-densityplot-clust.pdf")),
          plot = densp,
@@ -353,7 +369,7 @@ map_cwr = map_list[[1]] + map_list[[3]] +
 ggsave(paste0(output, "all-cwr-map.png"),
        plot = map_cwr,
        width = 50,
-       height = 70,
+       height = 55,
        units = "cm",
        dpi = 500)
 
@@ -367,7 +383,7 @@ map_landr = map_list[[2]] + map_list[[4]] +
 ggsave(paste0(output, "all-landrace-map.png"),
        plot = map_landr,
        width = 50,
-       height = 70,
+       height = 55,
        units = "cm",
        dpi = 500)
 
@@ -398,3 +414,32 @@ ggsave(paste0(output, "all-landrace-pca.png"),
        height = 65,
        units = "cm",
        dpi = 500)
+
+
+groups
+
+bp = boxp_list[[2]] + boxp_list[[4]] + 
+  boxp_list[[8]] + boxp_list[[16]] +  
+  plot_layout(ncol = 2)
+
+ggsave(paste0(output, "all-landrace-boxplot.png"),
+       plot = bp,
+       width = 30,
+       height = 30,
+       units = "cm",
+       dpi = 500)
+
+
+bp = boxp_list[[1]] + boxp_list[[3]] + 
+  boxp_list[[7]] + boxp_list[[15]] +  
+  plot_layout(ncol = 2)
+
+ggsave(paste0(output, "all-cwr-boxplot.png"),
+       plot = bp,
+       width = 30,
+       height = 30,
+       units = "cm",
+       dpi = 500)
+
+
+
