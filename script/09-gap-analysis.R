@@ -1,3 +1,5 @@
+# .........................................................
+# .........................................................
 # Gap analysis assessing the extent to which future climates
 # in key production areas are represented in the international 
 # collections of the 10 selected crops
@@ -34,7 +36,13 @@
 # distribution of the samples). Plot maps of where these are.
 # first run: Mar 2024
 # Kauê de Sousa CGIAR
-# ..................................
-# ..................................
+# .........................................................
+# .........................................................
+library("terra")
+
+
+
+
+
 
 

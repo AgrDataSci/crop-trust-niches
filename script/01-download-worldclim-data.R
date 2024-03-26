@@ -9,6 +9,8 @@ library("geodata")
 
 wcpath = "data/wc2.1-global"
 
+dir.create(wcpath, showWarnings = FALSE, recursive = TRUE)
+
 models = c("ACCESS-CM2", "EC-Earth3-Veg", 
            "INM-CM5-0", "MPI-ESM1-2-HR", 
            "MRI-ESM2-0")

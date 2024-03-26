@@ -4,6 +4,7 @@
 # working enviroment in this project
 # data can also been downloaded using 
 # geodata version 0.5-11
+# or from SPAM
 # first run: Feb 2024
 # Kauê de Sousa CGIAR
 # ..................................
@@ -13,6 +14,8 @@ library("geodata")
 from = "/Users/kauedesousa/local-workflow/geo-raster-shapefile/spam2010v2r0_global_harv_area/"
 
 here = "data/SPAM/"
+
+dir.create(here, showWarnings = FALSE, recursive = TRUE)
 
 crops = read.csv("data/mapspam-crop-names.csv")
 

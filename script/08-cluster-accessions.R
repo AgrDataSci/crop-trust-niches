@@ -196,6 +196,7 @@ pca_list = list()
 map_list = list()
 desn_list = list()
 boxp_list = list()
+clust_data = data.frame()
 
 for (i in seq_along(groups)){
   
