@@ -6,6 +6,8 @@
 # geodata version 0.5-11
 # first run: Feb 2024
 # Kauê de Sousa CGIAR
+# ..................................
+# ..................................
 library("geodata")
 
 from = "/Users/kauedesousa/local-workflow/geo-raster-shapefile/spam2010v2r0_global_harv_area/"

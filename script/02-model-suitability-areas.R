@@ -15,8 +15,6 @@ library("geodata")
 #...................................................
 #...................................................
 # Data ####
-# the BiodiversityR saves outputs on the current working directory
-# get the parent wd to return here if needed
 wcpath = "data/wc2.1-global"
 outputwd = "output/bioclim"
 dir.create(outputwd, showWarnings = FALSE, recursive = TRUE)

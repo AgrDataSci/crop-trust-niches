@@ -3,6 +3,8 @@
 # Sample spatial coordinates from SPAM data
 # first run: Feb 2024
 # Kauê de Sousa CGIAR
+# ..................................
+# ..................................
 library("terra")
 library("geodata")
 

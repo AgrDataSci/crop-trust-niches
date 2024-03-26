@@ -3,7 +3,9 @@
 # Download worldclim data 
 # first run: Feb 2024
 # Kauê de Sousa CGIAR
-slibrary("geodata")
+# ..................................
+# ..................................
+library("geodata")
 
 wcpath = "data/wc2.1-global"
 
