@@ -1,7 +1,8 @@
 #...................................................
 # Select bioclimatic variables for modelling
 # using VIF analysis
-
+# first run: Feb 2024
+# Kauê de Sousa CGIAR
 #...................................................
 #...................................................
 # Packages ####

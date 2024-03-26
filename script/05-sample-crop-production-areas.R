@@ -1,8 +1,15 @@
-# Draw current production sample from MapSPAM, using relative harvested area as weight, 
+# ..................................
+# ..................................
+# Draw current production sample from MapSPAM
+# using relative harvested area as weight, 
 # then remove any pixels that according to the suitability layers become unsuitable under 
 # future climates, and add pixels that are projected to become suitable. The added pixels will 
 # also be sampled, aiming to maintain the proportion between new and currently cultivated areas, 
 # and the sampling weights will be the future projected suitability values. 
+# first run: Feb 2024
+# Kauê de Sousa CGIAR
+# ..................................
+# ..................................
 library("terra")
 
 suitability_path = "output/change-suitability/"

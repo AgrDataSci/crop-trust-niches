@@ -15,7 +15,10 @@
 # focusing on those climate variables that most explain overall variation. 
 # To facilitate interpretation, we produced summary tables, biplots, cumulative
 # probability distribution plots, and force-directed graphs.
-
+# first run: Feb 2024
+# Kauê de Sousa CGIAR
+# ..................................
+# ..................................
 library("terra")
 library("geodata")
 library("tidyverse")

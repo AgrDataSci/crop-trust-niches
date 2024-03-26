@@ -3,6 +3,10 @@
 # Task 1b. 
 # Combine variables using PCA for historical and future climate, and analyze 
 # multi-dimensional shifts in climate conditions.
+# first run: Feb 2024
+# Kauê de Sousa CGIAR
+# ..................................
+# ..................................
 library("ggplot2")
 library("patchwork")
 
