@@ -258,6 +258,8 @@ for (i in seq_along(groups)){
   
   cat("using", nk, "clusters for", groups[i], "\n")
   
+  clust_data = rbind(clust_data, di)
+  
   pc = scale(di[bionames])
   
   PCA2 = princomp(pc)
@@ -358,6 +360,8 @@ for (i in seq_along(groups)){
   
 }
 
+
+write.csv(clust_data, paste0(output, "cluster-data-landrace-cwr.csv"), row.names = FALSE)
 
 groups
 
