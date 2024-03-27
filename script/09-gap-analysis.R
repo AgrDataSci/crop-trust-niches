@@ -40,9 +40,78 @@
 # .........................................................
 # .........................................................
 library("terra")
-
+library("tidyverse")
+library("magrittr")
 
 clust = read.csv("output/cluster-accessions/cluster-data-landrace-cwr.csv")
+
+names(clust)
+
+bio = c("bio1", "bio5", "bio6", "bio12", "bio16", "bio17")
+
+gap = clust %>% 
+  group_by(group) %>% 
+  summarise(nclust = length(unique(clust)),
+            bio1 = paste0(round(min(bio1), 0), " - ", round(max(bio1), 0)),
+            bio5 = paste0(round(min(bio5), 0), " - ", round(max(bio5), 0)),
+            bio6 = paste0(round(min(bio6), 0), " - ", round(max(bio6), 0)),
+            bio12 = paste0(round(min(bio12), 0), " - ", round(max(bio12), 0)),
+            bio16 = paste0(round(min(bio16), 0), " - ", round(max(bio16), 0)),
+            bio17 = paste0(round(min(bio17), 0), " - ", round(max(bio17), 0))) %>% 
+  separate(group, c("Crop", "GR"), sep = " - ")
+
+write_csv(gap, "output/climate-ranges-gr-crops.csv")
+
+# plot points by clusters
+pdat = 
+  clust[c("group", bio)] %>% 
+  pivot_longer(!group , names_to = "bio", values_to = "value") %>% 
+  separate(group, c("Crop", "GR"), sep = " - ")
+
+pdat$bio = factor(pdat$bio, levels = bio)
+
+pdat$Crop = factor(pdat$Crop, levels = rev(unique(pdat$Crop)))
+
+pdat %>% 
+  group_by(bio) %>% 
+  summarise(min = min(value),
+            max = max(value))
+
+# pdat$value = ifelse(pdat$bio == "bio17" & pdat$value < 0.5, pdat$value + 0.1,
+#                     pdat$value)
+
+pdat$value = ifelse(pdat$bio == "bio17" |
+                      pdat$bio == "bio12" |
+                      pdat$bio == "bio16", log(pdat$value),
+                    pdat$value)
+
+
+factor(pdat$bio, labels = c("bio1", "bio5", "bio6",
+                            "log(bio12)", "log(bio16)", "log(bio17)"))
+
+pdat %>% 
+  group_by(bio) %>% 
+  summarise(min = min(value),
+            max = max(value))
+
+p = ggplot(pdat, aes(y = Crop, x = value, fill = GR)) +
+  geom_violin() +
+  facet_wrap( ~ bio, scale = "free") +
+  scale_fill_brewer(palette = "Set1") +
+  theme_bw() +
+  theme(legend.position = "bottom") +
+  labs(x = "",
+       y = "")
+
+p
+
+ggsave("output/overlay-crop-gr-groups-bio-clim.png",
+       plot = p,
+       width = 30,
+       height = 25,
+       units = "cm")
+
+
 
 
 
