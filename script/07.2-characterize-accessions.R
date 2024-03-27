@@ -53,7 +53,7 @@ for (g in seq_along(gr)) {
     
     d_i = na.omit(d_i)
     
-    bio_i = d_i[, paste0("bio", 1:19)]#c(1, 2, 4, 5, 6, 7, 12, 16, 17, 18))]
+    bio_i = d_i[, paste0("bio", c(1, 2, 4, 5, 6, 7, 12, 16, 17, 18))]
     
     PCA2 = princomp(bio_i)
     

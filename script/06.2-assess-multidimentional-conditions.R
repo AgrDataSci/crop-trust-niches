@@ -35,7 +35,11 @@ plots = list()
 
 for(i in seq_along(ssp)) {
   
-  d_i = dat[dat$ssp == ssp[i], ]
+  d_i = dat
+  
+  d_i = d_i[d_i$ssp == ssp[i], ]
+  
+  #d_i = d_i[d_i$crop == "whea", ]
   
   d_i = na.omit(d_i)
   
@@ -45,11 +49,10 @@ for(i in seq_along(ssp)) {
   
   PCA2 = princomp(pca)
   
-  if(i == 8) leg = "bottom" else leg = "none"
-  
   plots[[i]] = plot_pca(PCA2, labels = d_i$crop, scale = 10) + 
     scale_color_brewer(palette = "RdYlBu", direction = -1) +
     labs(title = ssp_labs[i])
+  
 }
 
 p = 
@@ -62,6 +65,13 @@ ggsave("output/climate-envelope-ecocrop.pdf",
        plot = p,
        width = 35,
        height = 35,
+       units = "cm",
+       dpi = 600)
+
+ggsave("output/climate-envelope-ecocrop.png",
+       plot = p,
+       width = 45,
+       height = 45,
        units = "cm",
        dpi = 600)
 

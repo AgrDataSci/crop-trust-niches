@@ -49,6 +49,12 @@ names(clust)
 
 bio = c("bio1", "bio5", "bio6", "bio12", "bio16", "bio17")
 
+ssp = c("ssp126", "ssp245", "ssp370", "ssp585")
+
+year = c(2050, 2070)
+
+pathprod = "data/future-prod-areas"
+
 gap = clust %>% 
   group_by(group) %>% 
   summarise(nclust = length(unique(clust)),
@@ -77,16 +83,13 @@ pdat %>%
   summarise(min = min(value),
             max = max(value))
 
-# pdat$value = ifelse(pdat$bio == "bio17" & pdat$value < 0.5, pdat$value + 0.1,
-#                     pdat$value)
-
 pdat$value = ifelse(pdat$bio == "bio17" |
                       pdat$bio == "bio12" |
                       pdat$bio == "bio16", log(pdat$value),
                     pdat$value)
 
 
-factor(pdat$bio, labels = c("bio1", "bio5", "bio6",
+pdat$bio = factor(pdat$bio, labels = c("bio1", "bio5", "bio6",
                             "log(bio12)", "log(bio16)", "log(bio17)"))
 
 pdat %>% 
@@ -103,14 +106,109 @@ p = ggplot(pdat, aes(y = Crop, x = value, fill = GR)) +
   labs(x = "",
        y = "")
 
-p
-
 ggsave("output/overlay-crop-gr-groups-bio-clim.png",
        plot = p,
-       width = 30,
-       height = 25,
+       width = 20,
+       height = 20,
        units = "cm")
 
+# ...................................
+# ...................................
+ranges = 
+  clust %>% 
+  group_by(group, clust) %>% 
+  summarise(bio1_1 = min(bio1), 
+            bio1_2 = max(bio1),
+            bio5_1 = min(bio5),
+            bio5_2 = max(bio5),
+            bio6_1 = min(bio6),
+            bio6_2 = max(bio6),
+            bio12_1 = min(bio12),
+            bio12_2 = max(bio12),
+            bio16_1 = min(bio16),
+            bio16_2 = max(bio16),
+            bio17_1 = min(bio17), 
+            bio17_2 = max(bio17)) %>% 
+  separate(group, c("Crop", "GR"), sep = " - ", remove = FALSE)
+
+groups = unique(ranges$group)
+
+# .........................
+# .........................
+# SPAM prod areas 
+files = list.files("data/SPAM", pattern = "A.tif", full.names = TRUE)
+
+spam_crop = gsub("data/SPAM/spam2010V2r0_global_H_|_A.tif",
+                 "", 
+                 files)
+
+spam = rast(files)
+
+spam[spam <= 50] = 0
+
+spam = sum(spam)
+
+spam[spam > 50] = 1
+
+myext = ext(spam)
+
+# .........................
+# .........................
+# Reclassify over prod areas 
+
+i = 1
+j = 2
+g = 1
+b = 1
+
+
+for(g in seq_along(groups)) {
+  
+  prod_group = c()
+  
+  for (i in seq_along(years)) {
+    
+    for (j in seq_along(ssp)) {
+    
+      f = paste0(pathprod, "/", year[i], "/wc2.1_5m_av5_", 
+                 ssp[j], "_", bio, "_", year[i], ".tif")
+      
+      r = rast(f)
+      
+      names(r) = bio
+      
+      r = terra::crop(r, myext)
+      
+      r = mask(r, spam)
+      
+      # do it for each bio within the crop group
+      for(b in seq_along(bio)) {
+        
+        z = r
+        
+        # and now do it for each cluster
+        class_matrix = ranges[ranges$group == groups[g], ]
+        
+        class_matrix = class_matrix[, c(paste0(bio[b], c("_1", "_2")), "clust")]
+        
+        class_matrix = as.matrix(class_matrix)
+        
+        clusters = unique(class_matrix[,3])
+        
+        for(k in seq_along(clusters)) {
+          
+          z[[b]] = classify(z[[b]], class_matrix[k, ])
+          
+          z[[b]][z[[b]] < 10000] = 0
+        }
+        
+      }
+        
+    }
+    
+  }
+
+}
 
 
 
