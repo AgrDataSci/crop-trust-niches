@@ -42,6 +42,11 @@
 library("terra")
 library("tidyverse")
 library("magrittr")
+library("geodata")
+
+output = "output/prod-areas-gr-clusters/"
+
+dir.create(output, showWarnings = FALSE)
 
 clust = read.csv("output/cluster-accessions/cluster-data-landrace-cwr.csv")
 
@@ -49,9 +54,9 @@ names(clust)
 
 bio = c("bio1", "bio5", "bio6", "bio12", "bio16", "bio17")
 
-ssp = c("ssp126", "ssp245", "ssp370", "ssp585")
+ssp = "ssp370" #c("ssp126", "ssp245", "ssp370", "ssp585")
 
-year = c(2050, 2070)
+year = c("hist", "2050", "2070")
 
 pathprod = "data/future-prod-areas"
 
@@ -155,36 +160,49 @@ myext = ext(spam)
 # .........................
 # .........................
 # Reclassify over prod areas 
+year = 2050
 
-i = 1
-j = 2
-g = 1
-b = 1
-
-
-for(g in seq_along(groups)) {
+for (i in seq_along(year)) {
   
-  prod_group = c()
+  print(year[i])
   
-  for (i in seq_along(years)) {
+  #  for (j in seq_along(ssp)) {
+  
+  if(isTRUE(year[i] == "hist")) {
+    r = worldclim_global("bio", res = 5, "data/wc2.1-global")
     
-    for (j in seq_along(ssp)) {
+    names(r) = paste0("bio", 1:19)
     
-      f = paste0(pathprod, "/", year[i], "/wc2.1_5m_av5_", 
-                 ssp[j], "_", bio, "_", year[i], ".tif")
+    r = subset(r, subset = bio)
+
+  }
+  
+  if (isFALSE(year[i] == "hist")) {
+    f = paste0(pathprod, "/", year[i], "/wc2.1_5m_av5_", 
+               ssp[1], "_", bio, "_", year[i], ".tif")
+    
+    r = rast(f)
+    
+    names(r) = bio
+  }
+  
+  r = terra::crop(r, myext)
+  
+  r = mask(r, spam)
+  
+  for(g in seq_along(groups)) {
+    
+    print(groups[g])
+    
+    clusters = unique(ranges$clust[ranges$group == groups[g]])
+    
+    prod_clust = c()
+    
+    for(k in seq_along(clusters)) {
       
-      r = rast(f)
+      clust_r = r
       
-      names(r) = bio
-      
-      r = terra::crop(r, myext)
-      
-      r = mask(r, spam)
-      
-      # do it for each bio within the crop group
       for(b in seq_along(bio)) {
-        
-        z = r
         
         # and now do it for each cluster
         class_matrix = ranges[ranges$group == groups[g], ]
@@ -195,19 +213,43 @@ for(g in seq_along(groups)) {
         
         clusters = unique(class_matrix[,3])
         
-        for(k in seq_along(clusters)) {
-          
-          z[[b]] = classify(z[[b]], class_matrix[k, ])
-          
-          z[[b]][z[[b]] < 10000] = 0
-        }
+        clust_r[[b]][clust_r[[b]] >= class_matrix[k, 1] & clust_r[[b]] <= class_matrix[k, 2]] = -1000
+        
+        clust_r[[b]][clust_r[[b]] != -1000] = 0
+        
+        clust_r[[b]][clust_r[[b]] == -1000] = 1
+        
         
       }
-        
+      
+      clust_r = sum(clust_r)
+      
+      clust_r[clust_r < 6] = 0
+      
+      clust_r[clust_r == 6] = class_matrix[k, 3]
+      
+      prod_clust = c(prod_clust, clust_r)
+      
     }
     
+    prod_clust = rast(prod_clust)
+    
+    plot(prod_clust)
+    
+    prod_clust = sum(prod_clust)  
+    
+    prod_clust[prod_clust > max(clusters)] = 0
+    
+    writeRaster(prod_clust, 
+                filename = paste0(output, 
+                                  groups[g], "-", 
+                                  year[i], "-",
+                                  ssp[1],
+                                  ".tif"),
+                overwrite = TRUE)
+    
   }
-
+  
 }
 
 
