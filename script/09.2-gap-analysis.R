@@ -209,10 +209,35 @@ ggplot(aes(y=Crop, x=Match, fill=Cluster)) +
   geom_bar(stat="identity", position="fill") +
   theme_light() +
   facet_wrap(~ Year) +
-  theme_minimal() +
+  theme_bw() +
   scale_fill_manual(values = mycolors,
                      guide = guide_legend(ncol = 2)) +
 labs(title="Landrace",
-       y="Proportion of Matching Areas",
-       x="")
+       x="Proportion of Matching Areas",
+       y="")
 
+ggsave("output/gap-landrace.png",
+       plot = last_plot(),
+       width = 30,
+       height = 15,
+       units = "cm")
+
+
+dat %>% 
+  filter(GR == "CWR") %>% 
+  ggplot(aes(y=Crop, x=Match, fill=Cluster)) +
+  geom_bar(stat="identity", position="fill") +
+  theme_light() +
+  facet_wrap(~ Year) +
+  theme_bw() +
+  scale_fill_manual(values = mycolors,
+                    guide = guide_legend(ncol = 2)) +
+  labs(title="Crop wild relatives",
+       x="Proportion of Matching Areas",
+       y="")
+
+ggsave("output/gap-cwr.png",
+       plot = last_plot(),
+       width = 30,
+       height = 15,
+       units = "cm")
