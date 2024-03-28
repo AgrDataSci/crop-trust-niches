@@ -58,6 +58,17 @@ ssp = "ssp370" #c("ssp126", "ssp245", "ssp370", "ssp585")
 
 year = c("hist", "2050", "2070")
 
+# this is a path to averaged bioclim variables for future climates
+# I was in a hurry when I wrote this script,
+# but reproducibility can be achieved with 
+# averaging the layers from 
+# geodata::cmip6_world(model = gcm[j, 1],
+#                      ssp = gcm[j, 2],
+#                      time = gcm[j, 3],
+#                      var = "bio",
+#                      res = 5, 
+#                      path = wcpath)
+
 pathprod = "data/future-prod-areas"
 
 gap = clust %>% 
