@@ -80,7 +80,7 @@ for (i in seq_along(sp)) {
 
   # plot(bio[[1]])
   # points(coord[,c(1,2)])
-  # points(bg, pch = "+")
+  # points(bg, pch = "+", col = "red")
 
   
   cat("Using ", nrow(coord), " presence points \n")

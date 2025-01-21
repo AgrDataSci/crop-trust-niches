@@ -33,5 +33,7 @@ data/SPAM
 data/future-prod-areas
 output
 *.zip
+data/world-map/gadm
+
 
 
